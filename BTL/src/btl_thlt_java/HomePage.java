@@ -1,0 +1,1171 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
+ */
+package btl_thlt_java;
+
+import static btl_thlt_java.MuonTra.setupTableAppearance;
+import com.mysql.cj.result.Row;
+import java.awt.Color;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.table.DefaultTableModel;
+
+/**
+ *
+ * @author Admin
+ */
+public class HomePage extends javax.swing.JFrame {
+    private int mouseX, mouseY;
+
+    /**
+     * Creates new form HomePage
+     */
+    
+    public HomePage() {
+        initComponents();
+        setupTableAppearance(tblThongKe);
+        if ("User".equals(UserInfo.loggedInRole)) {
+    manageUsers.setVisible(false);
+}
+        displayUsername.setText(UserInfo.loggedInUsername) ;
+        updateAllLabels();
+    }
+private void xuat() {
+        JFileChooser fileChooser = new JFileChooser();
+    fileChooser.setDialogTitle("Lưu file thống kê");
+    int userSelection = fileChooser.showSaveDialog(this);
+
+    if (userSelection == JFileChooser.APPROVE_OPTION) {
+        File fileToSave = fileChooser.getSelectedFile();
+
+        // Nếu chưa có đuôi .txt thì thêm vào
+        if (!fileToSave.getName().toLowerCase().endsWith(".txt")) {
+            fileToSave = new File(fileToSave.getAbsolutePath() + ".txt");
+        }
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileToSave))) {
+            // Ghi tiêu đề cột
+            for (int i = 0; i < tblThongKe.getColumnCount(); i++) {
+                writer.write(tblThongKe.getColumnName(i));
+                if (i < tblThongKe.getColumnCount() - 1) {
+                    writer.write(" | ");
+                }
+            }
+            writer.newLine();
+
+            // Ghi dữ liệu dòng
+            for (int row = 0; row < tblThongKe.getRowCount(); row++) {
+                for (int col = 0; col < tblThongKe.getColumnCount(); col++) {
+                    Object value = tblThongKe.getValueAt(row, col);
+                    writer.write(value != null ? value.toString() : "");
+                    if (col < tblThongKe.getColumnCount() - 1) {
+                        writer.write(" | ");
+                    }
+                }
+                writer.newLine();
+            }
+
+            JOptionPane.showMessageDialog(this, "Xuất file TXT thành công!");
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi khi xuất file: " + ex.getMessage());
+        }
+    }
+}    
+private String buildWhereClause() {
+    List<String> conditions = new ArrayList<>();
+
+    if (chkDangMuon.isSelected()) conditions.add("'Đang mượn'");
+    if (chkQuaHan.isSelected()) conditions.add("'Quá hạn'");
+    if (chkDaTra.isSelected()) conditions.add("'Đã trả'");
+
+    if (conditions.isEmpty()) return ""; // Không lọc gì
+
+    return "WHERE pm.tinh_trang_muon IN (" + String.join(",", conditions) + ")";
+}
+private void thongke(){
+     String sql = "SELECT pm.id, sv.ma_sv, sv.ho_ten, s.ma_sach, s.tua_de, s.tinh_trang, "
+               + "pm.ngay_muon, pm.ngay_tra_du_kien, pm.ngay_tra_thuc_te, pm.phi_muon, pm.tinh_trang_muon "
+               + "FROM phieu_muon pm "
+               + "JOIN sinh_vien sv ON pm.ma_sv = sv.ma_sv "
+               + "JOIN sach s ON pm.ma_sach = s.ma_sach "
+               + buildWhereClause();
+
+    try (Connection conn = KN.KNDL();
+         PreparedStatement stmt = conn.prepareStatement(sql);
+         ResultSet rs = stmt.executeQuery()) {
+
+        DefaultTableModel model = (DefaultTableModel) tblThongKe.getModel();
+        model.setRowCount(0);
+
+        while (rs.next()) {
+            Object[] row = {
+                rs.getInt("id"),
+                rs.getString("ma_sv"),
+                rs.getString("ho_ten"),
+                rs.getString("ma_sach"),
+                rs.getString("tua_de"),
+                rs.getString("tinh_trang"),
+                rs.getDate("ngay_muon"),
+                rs.getDate("ngay_tra_du_kien"),
+                rs.getDate("ngay_tra_thuc_te"),
+                rs.getDouble("phi_muon"),
+                rs.getString("tinh_trang_muon")
+            };
+            model.addRow(row);
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Lỗi khi thống kê: " + e.getMessage());
+    }
+}
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jMenuItem1 = new javax.swing.JMenuItem();
+        jPanel2 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jPanel3 = new javax.swing.JPanel();
+        jLabel11 = new javax.swing.JLabel();
+        close = new javax.swing.JLabel();
+        displayUsername = new javax.swing.JLabel();
+        signout = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
+        search = new javax.swing.JPanel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        manage = new javax.swing.JPanel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        home = new javax.swing.JPanel();
+        jLabel5 = new javax.swing.JLabel();
+        info = new javax.swing.JPanel();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel10 = new javax.swing.JLabel();
+        jTabbedPane1 = new javax.swing.JTabbedPane();
+        jPanel8 = new javax.swing.JPanel();
+        jLabel16 = new javax.swing.JLabel();
+        jLabel17 = new javax.swing.JLabel();
+        jLabel14 = new javax.swing.JLabel();
+        jLabel15 = new javax.swing.JLabel();
+        SoSachQuaHan = new javax.swing.JLabel();
+        SoSV = new javax.swing.JLabel();
+        SoSach = new javax.swing.JLabel();
+        SoSachMuon = new javax.swing.JLabel();
+        jPanel9 = new javax.swing.JPanel();
+        manageBook = new javax.swing.JLabel();
+        manageLend = new javax.swing.JLabel();
+        manageStudents = new javax.swing.JLabel();
+        manageUsers = new javax.swing.JLabel();
+        jPanel10 = new javax.swing.JPanel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        tblThongKe = new javax.swing.JTable();
+        chkDangMuon = new javax.swing.JCheckBox();
+        chkQuaHan = new javax.swing.JCheckBox();
+        chkDaTra = new javax.swing.JCheckBox();
+        btnThem = new javax.swing.JButton();
+        btnXuat = new javax.swing.JButton();
+        jPanel11 = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
+
+        jMenuItem1.setText("jMenuItem1");
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Library management system ");
+        setIconImage(new ImageIcon(getClass().getResource("/Icon/Title.png")).getImage());
+        setUndecorated(true);
+        setResizable(false);
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jPanel2.setBackground(new java.awt.Color(0, 51, 102));
+        jPanel2.setForeground(new java.awt.Color(0, 51, 102));
+        jPanel2.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            public void mouseDragged(java.awt.event.MouseEvent evt) {
+                jPanel2MouseDragged(evt);
+            }
+        });
+        jPanel2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                jPanel2MousePressed(evt);
+            }
+        });
+        jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icon/adminIcons/icons8_menu_48px_1.png"))); // NOI18N
+        jPanel2.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 60, 60));
+
+        jPanel3.setForeground(new java.awt.Color(255, 255, 255));
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 5, Short.MAX_VALUE)
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 40, Short.MAX_VALUE)
+        );
+
+        jPanel2.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 10, 5, 40));
+
+        jLabel11.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel11.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel11.setText("Phần mềm quản lý thư viện");
+        jPanel2.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 0, -1, 60));
+
+        close.setBackground(new java.awt.Color(0, 51, 102));
+        close.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        close.setForeground(new java.awt.Color(255, 255, 255));
+        close.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        close.setText("X");
+        close.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        close.setOpaque(true);
+        close.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                closeMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                closeMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                closeMouseExited(evt);
+            }
+        });
+        jPanel2.add(close, new org.netbeans.lib.awtextra.AbsoluteConstraints(1140, 0, 60, 60));
+
+        displayUsername.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        displayUsername.setForeground(new java.awt.Color(255, 255, 255));
+        displayUsername.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icon/adminIcons/male_user_50px.png"))); // NOI18N
+        displayUsername.setText("Username");
+        jPanel2.add(displayUsername, new org.netbeans.lib.awtextra.AbsoluteConstraints(880, 0, 200, 60));
+
+        signout.setBackground(new java.awt.Color(0, 51, 102));
+        signout.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        signout.setForeground(new java.awt.Color(255, 255, 255));
+        signout.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        signout.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icon/colorful-icons/arrow.png"))); // NOI18N
+        signout.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        signout.setOpaque(true);
+        signout.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                signoutMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                signoutMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                signoutMouseExited(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                signoutMousePressed(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                signoutMouseReleased(evt);
+            }
+        });
+        jPanel2.add(signout, new org.netbeans.lib.awtextra.AbsoluteConstraints(1080, 0, 60, 60));
+
+        getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1200, 60));
+
+        jPanel1.setBackground(new java.awt.Color(91, 136, 178));
+        jPanel1.setForeground(new java.awt.Color(51, 51, 51));
+        jPanel1.setPreferredSize(new java.awt.Dimension(180, 700));
+        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        search.setBackground(new java.awt.Color(91, 136, 178));
+        search.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        search.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                searchMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                searchMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                searchMouseExited(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                searchMousePressed(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                searchMouseReleased(evt);
+            }
+        });
+
+        jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel3.setText("Thống kê");
+
+        jLabel9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icon/colorful-icons/magnifying-glass.png"))); // NOI18N
+
+        javax.swing.GroupLayout searchLayout = new javax.swing.GroupLayout(search);
+        search.setLayout(searchLayout);
+        searchLayout.setHorizontalGroup(
+            searchLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(searchLayout.createSequentialGroup()
+                .addGap(21, 21, 21)
+                .addComponent(jLabel9)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel3)
+                .addContainerGap(37, Short.MAX_VALUE))
+        );
+        searchLayout.setVerticalGroup(
+            searchLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(searchLayout.createSequentialGroup()
+                .addGap(17, 17, 17)
+                .addGroup(searchLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel3)
+                    .addComponent(jLabel9))
+                .addContainerGap(18, Short.MAX_VALUE))
+        );
+
+        jPanel1.add(search, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 120, 180, 60));
+
+        manage.setBackground(new java.awt.Color(91, 136, 178));
+        manage.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        manage.setPreferredSize(new java.awt.Dimension(180, 60));
+        manage.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                manageMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                manageMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                manageMouseExited(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                manageMousePressed(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                manageMouseReleased(evt);
+            }
+        });
+
+        jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel4.setText("Quản lý");
+
+        jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icon/colorful-icons/pencil.png"))); // NOI18N
+
+        javax.swing.GroupLayout manageLayout = new javax.swing.GroupLayout(manage);
+        manage.setLayout(manageLayout);
+        manageLayout.setHorizontalGroup(
+            manageLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(manageLayout.createSequentialGroup()
+                .addGap(21, 21, 21)
+                .addComponent(jLabel7)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel4)
+                .addContainerGap(57, Short.MAX_VALUE))
+        );
+        manageLayout.setVerticalGroup(
+            manageLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(manageLayout.createSequentialGroup()
+                .addGap(17, 17, 17)
+                .addGroup(manageLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel4)
+                    .addComponent(jLabel7))
+                .addContainerGap(18, Short.MAX_VALUE))
+        );
+
+        jPanel1.add(manage, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 60, 180, -1));
+
+        home.setBackground(new java.awt.Color(91, 136, 178));
+        home.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        home.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                homeMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                homeMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                homeMouseExited(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                homeMousePressed(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                homeMouseReleased(evt);
+            }
+        });
+
+        jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icon/colorful-icons/home.png"))); // NOI18N
+        jLabel5.setText("Trang chủ");
+
+        javax.swing.GroupLayout homeLayout = new javax.swing.GroupLayout(home);
+        home.setLayout(homeLayout);
+        homeLayout.setHorizontalGroup(
+            homeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(homeLayout.createSequentialGroup()
+                .addGap(21, 21, 21)
+                .addComponent(jLabel5)
+                .addContainerGap(45, Short.MAX_VALUE))
+        );
+        homeLayout.setVerticalGroup(
+            homeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(homeLayout.createSequentialGroup()
+                .addGap(17, 17, 17)
+                .addComponent(jLabel5)
+                .addContainerGap(18, Short.MAX_VALUE))
+        );
+
+        jPanel1.add(home, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 180, 60));
+
+        info.setBackground(new java.awt.Color(91, 136, 178));
+        info.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        info.setPreferredSize(new java.awt.Dimension(180, 60));
+        info.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                infoMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                infoMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                infoMouseExited(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                infoMousePressed(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                infoMouseReleased(evt);
+            }
+        });
+
+        jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel6.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel6.setText("Thông tin");
+
+        jLabel10.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icon/colorful-icons/profile-user.png"))); // NOI18N
+
+        javax.swing.GroupLayout infoLayout = new javax.swing.GroupLayout(info);
+        info.setLayout(infoLayout);
+        infoLayout.setHorizontalGroup(
+            infoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(infoLayout.createSequentialGroup()
+                .addGap(21, 21, 21)
+                .addComponent(jLabel10)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel6)
+                .addContainerGap(46, Short.MAX_VALUE))
+        );
+        infoLayout.setVerticalGroup(
+            infoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, infoLayout.createSequentialGroup()
+                .addContainerGap(18, Short.MAX_VALUE)
+                .addGroup(infoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel6)
+                    .addComponent(jLabel10))
+                .addGap(17, 17, 17))
+        );
+
+        jPanel1.add(info, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 180, 180, -1));
+
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 60, 180, 640));
+
+        jTabbedPane1.setBackground(new java.awt.Color(255, 255, 255));
+
+        jPanel8.setBackground(new java.awt.Color(153, 204, 255));
+        jPanel8.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel16.setFont(new java.awt.Font("Segoe UI", 1, 36)); // NOI18N
+        jLabel16.setText("Sách đang được mượn ");
+        jPanel8.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 550, -1, -1));
+
+        jLabel17.setFont(new java.awt.Font("Segoe UI", 1, 36)); // NOI18N
+        jLabel17.setText("Sách quá hạn trả");
+        jPanel8.add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 550, -1, -1));
+
+        jLabel14.setFont(new java.awt.Font("Segoe UI", 1, 36)); // NOI18N
+        jLabel14.setText("Sách");
+        jPanel8.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 250, -1, -1));
+
+        jLabel15.setFont(new java.awt.Font("Segoe UI", 1, 36)); // NOI18N
+        jLabel15.setText("Sinh viên ");
+        jPanel8.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 250, -1, -1));
+
+        SoSachQuaHan.setBackground(new java.awt.Color(255, 255, 255));
+        SoSachQuaHan.setFont(new java.awt.Font("Segoe UI", 1, 100)); // NOI18N
+        SoSachQuaHan.setForeground(new java.awt.Color(255, 0, 0));
+        SoSachQuaHan.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        SoSachQuaHan.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icon/colorful-icons/overdue.png"))); // NOI18N
+        SoSachQuaHan.setText("1");
+        SoSachQuaHan.setOpaque(true);
+        jPanel8.add(SoSachQuaHan, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 360, 450, 250));
+
+        SoSV.setBackground(new java.awt.Color(255, 255, 255));
+        SoSV.setFont(new java.awt.Font("Segoe UI", 1, 100)); // NOI18N
+        SoSV.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        SoSV.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icon/colorful-icons/group.png"))); // NOI18N
+        SoSV.setText("1");
+        SoSV.setOpaque(true);
+        jPanel8.add(SoSV, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 60, 450, 250));
+
+        SoSach.setBackground(new java.awt.Color(255, 255, 255));
+        SoSach.setFont(new java.awt.Font("Segoe UI", 1, 100)); // NOI18N
+        SoSach.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        SoSach.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icon/colorful-icons/book-stack.png"))); // NOI18N
+        SoSach.setText("1");
+        SoSach.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
+        SoSach.setOpaque(true);
+        jPanel8.add(SoSach, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 60, 450, 250));
+
+        SoSachMuon.setBackground(new java.awt.Color(255, 255, 255));
+        SoSachMuon.setFont(new java.awt.Font("Segoe UI", 1, 100)); // NOI18N
+        SoSachMuon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        SoSachMuon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icon/colorful-icons/book (1).png"))); // NOI18N
+        SoSachMuon.setText("1");
+        SoSachMuon.setOpaque(true);
+        jPanel8.add(SoSachMuon, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 360, 450, 250));
+
+        jTabbedPane1.addTab("tab1", jPanel8);
+
+        jPanel9.setBackground(new java.awt.Color(153, 204, 255));
+        jPanel9.setForeground(new java.awt.Color(255, 255, 255));
+
+        manageBook.setBackground(new java.awt.Color(255, 255, 255));
+        manageBook.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        manageBook.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        manageBook.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icon/colorful-icons/book84.png"))); // NOI18N
+        manageBook.setText("Quản lý sách");
+        manageBook.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        manageBook.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        manageBook.setMaximumSize(new java.awt.Dimension(200, 125));
+        manageBook.setMinimumSize(new java.awt.Dimension(200, 125));
+        manageBook.setOpaque(true);
+        manageBook.setPreferredSize(new java.awt.Dimension(200, 125));
+        manageBook.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                manageBookMouseClicked(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                manageBookMousePressed(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                manageBookMouseReleased(evt);
+            }
+        });
+
+        manageLend.setBackground(new java.awt.Color(255, 255, 255));
+        manageLend.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        manageLend.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        manageLend.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icon/colorful-icons/return84.png"))); // NOI18N
+        manageLend.setText("Quản lý mượn trả");
+        manageLend.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        manageLend.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        manageLend.setMaximumSize(new java.awt.Dimension(200, 140));
+        manageLend.setMinimumSize(new java.awt.Dimension(200, 140));
+        manageLend.setOpaque(true);
+        manageLend.setPreferredSize(new java.awt.Dimension(200, 140));
+        manageLend.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                manageLendMouseClicked(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                manageLendMousePressed(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                manageLendMouseReleased(evt);
+            }
+        });
+
+        manageStudents.setBackground(new java.awt.Color(255, 255, 255));
+        manageStudents.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        manageStudents.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        manageStudents.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icon/colorful-icons/editUser.png"))); // NOI18N
+        manageStudents.setText("Quản lý sinh viên");
+        manageStudents.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        manageStudents.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        manageStudents.setMaximumSize(new java.awt.Dimension(200, 125));
+        manageStudents.setMinimumSize(new java.awt.Dimension(200, 125));
+        manageStudents.setOpaque(true);
+        manageStudents.setPreferredSize(new java.awt.Dimension(200, 125));
+        manageStudents.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                manageStudentsMouseClicked(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                manageStudentsMousePressed(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                manageStudentsMouseReleased(evt);
+            }
+        });
+
+        manageUsers.setBackground(new java.awt.Color(255, 255, 255));
+        manageUsers.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        manageUsers.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        manageUsers.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icon/colorful-icons/admin.png"))); // NOI18N
+        manageUsers.setText("Quản lý người dùng");
+        manageUsers.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        manageUsers.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        manageUsers.setMaximumSize(new java.awt.Dimension(200, 125));
+        manageUsers.setMinimumSize(new java.awt.Dimension(200, 125));
+        manageUsers.setOpaque(true);
+        manageUsers.setPreferredSize(new java.awt.Dimension(200, 125));
+        manageUsers.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                manageUsersMouseClicked(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                manageUsersMousePressed(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                manageUsersMouseReleased(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
+        jPanel9.setLayout(jPanel9Layout);
+        jPanel9Layout.setHorizontalGroup(
+            jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel9Layout.createSequentialGroup()
+                .addContainerGap(95, Short.MAX_VALUE)
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(manageBook, javax.swing.GroupLayout.PREFERRED_SIZE, 375, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(manageStudents, javax.swing.GroupLayout.PREFERRED_SIZE, 375, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(80, 80, 80)
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(manageLend, javax.swing.GroupLayout.PREFERRED_SIZE, 375, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(manageUsers, javax.swing.GroupLayout.PREFERRED_SIZE, 375, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(95, 95, 95))
+        );
+        jPanel9Layout.setVerticalGroup(
+            jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel9Layout.createSequentialGroup()
+                .addGap(142, 142, 142)
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(manageBook, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(manageLend, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(80, 80, 80)
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(manageUsers, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(manageStudents, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(142, Short.MAX_VALUE))
+        );
+
+        jTabbedPane1.addTab("tab2", jPanel9);
+
+        jPanel10.setBackground(new java.awt.Color(153, 204, 255));
+
+        tblThongKe.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        tblThongKe.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null}
+            },
+            new String [] {
+                "ID", "Mã sinh viên", "Tên sinh viên", "Mã sách", "Tên sách", "Tình trạng sách", "Ngày mượn", "Ngày trả dự kiến", "Ngày trả thực tế", "Phí mượn", "Tình trạng"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        tblThongKe.setRowHeight(30);
+        tblThongKe.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblThongKeMouseClicked(evt);
+            }
+        });
+        jScrollPane2.setViewportView(tblThongKe);
+
+        chkDangMuon.setText("Đang mượn");
+        chkDangMuon.setContentAreaFilled(false);
+        chkDangMuon.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                chkDangMuonActionPerformed(evt);
+            }
+        });
+
+        chkQuaHan.setText("Quá hạn");
+        chkQuaHan.setContentAreaFilled(false);
+
+        chkDaTra.setText("Đã trả");
+        chkDaTra.setContentAreaFilled(false);
+        chkDaTra.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                chkDaTraActionPerformed(evt);
+            }
+        });
+
+        btnThem.setBackground(new java.awt.Color(51, 102, 255));
+        btnThem.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnThem.setForeground(new java.awt.Color(255, 255, 255));
+        btnThem.setText("Thống kê");
+        btnThem.setPreferredSize(new java.awt.Dimension(100, 27));
+        btnThem.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btnThemMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btnThemMouseExited(evt);
+            }
+        });
+        btnThem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnThemActionPerformed(evt);
+            }
+        });
+
+        btnXuat.setBackground(new java.awt.Color(51, 102, 255));
+        btnXuat.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnXuat.setForeground(new java.awt.Color(255, 255, 255));
+        btnXuat.setText("Xuất");
+        btnXuat.setPreferredSize(new java.awt.Dimension(100, 27));
+        btnXuat.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btnXuatMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btnXuatMouseExited(evt);
+            }
+        });
+        btnXuat.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnXuatActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
+        jPanel10.setLayout(jPanel10Layout);
+        jPanel10Layout.setHorizontalGroup(
+            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel10Layout.createSequentialGroup()
+                .addContainerGap(24, Short.MAX_VALUE)
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel10Layout.createSequentialGroup()
+                        .addComponent(btnThem, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(chkDangMuon, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(chkQuaHan, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(chkDaTra, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnXuat, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 972, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(24, 24, 24))
+        );
+        jPanel10Layout.setVerticalGroup(
+            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel10Layout.createSequentialGroup()
+                .addGap(39, 39, 39)
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE, false)
+                    .addComponent(chkDangMuon, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(chkQuaHan, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(chkDaTra, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnXuat, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnThem, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 534, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(14, Short.MAX_VALUE))
+        );
+
+        jTabbedPane1.addTab("tab3", jPanel10);
+
+        jPanel11.setBackground(new java.awt.Color(153, 204, 255));
+
+        jTextArea1.setColumns(20);
+        jTextArea1.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
+        jTextArea1.setRows(5);
+        jTextArea1.setText("                                 TRƯỜNG ĐẠI HỌC KINH TẾ - KỸ THUẬT CÔNG NGHIỆP\n                                                 KHOA CÔNG NGHỆ THÔNG TIN\n \n                                                            BÀI TẬP LỚN\n                                                   Thực hành lập trình Java\n                                        ĐỀ TÀI: Chương trình quản lý thư viện\n                                      Giảng viên hướng dẫn: Th.S. Trần Thị Huệ\n\n                                               Nhóm sinh viên thực hiện: \n                                               Nguyễn Tuấn Minh\n                                               Lương Minh Sơn\n                                               Trần Nam Khánh\n                                               Lê Gia Khánh\n\n                                                Lớp: DHTI16A1HN\n                                               Khoa: Công nghệ thông tin\n\n\n");
+        jTextArea1.setAlignmentY(5.0F);
+        jTextArea1.setDisabledTextColor(new java.awt.Color(0, 0, 0));
+        jTextArea1.setDoubleBuffered(true);
+        jTextArea1.setEnabled(false);
+        jScrollPane1.setViewportView(jTextArea1);
+
+        javax.swing.GroupLayout jPanel11Layout = new javax.swing.GroupLayout(jPanel11);
+        jPanel11.setLayout(jPanel11Layout);
+        jPanel11Layout.setHorizontalGroup(
+            jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel11Layout.createSequentialGroup()
+                .addGap(56, 56, 56)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 903, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(61, Short.MAX_VALUE))
+        );
+        jPanel11Layout.setVerticalGroup(
+            jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel11Layout.createSequentialGroup()
+                .addContainerGap(45, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 572, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(28, 28, 28))
+        );
+
+        jTabbedPane1.addTab("tab4", jPanel11);
+
+        getContentPane().add(jTabbedPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 20, 1020, 680));
+
+        setSize(new java.awt.Dimension(1198, 699));
+        setLocationRelativeTo(null);
+    }// </editor-fold>//GEN-END:initComponents
+    public void updateAllLabels() {
+        try (Connection connection = KN.KNDL();
+         PreparedStatement psSach = connection.prepareStatement("SELECT SUM(so_luong) FROM sach");
+         PreparedStatement psSV = connection.prepareStatement("SELECT COUNT(*) FROM sinh_vien");
+         PreparedStatement psMuon = connection.prepareStatement(
+             "SELECT COUNT(*) FROM phieu_muon WHERE ngay_tra_thuc_te IS NULL"
+         );
+         PreparedStatement psQuaHan = connection.prepareStatement(
+             "SELECT COUNT(*) FROM phieu_muon " +
+             "WHERE ngay_tra_thuc_te IS NULL AND ngay_tra_du_kien < CURDATE()"
+         )) {
+
+        connection.setAutoCommit(false);
+
+        ResultSet rsSach = psSach.executeQuery();
+        ResultSet rsSV = psSV.executeQuery();
+        ResultSet rsMuon = psMuon.executeQuery();
+        ResultSet rsQuaHan = psQuaHan.executeQuery();
+
+        SoSach.setText(rsSach.next() ? String.valueOf(rsSach.getInt(1)) : "0");
+        SoSV.setText(rsSV.next() ? String.valueOf(rsSV.getInt(1)) : "0");
+        SoSachMuon.setText(rsMuon.next() ? String.valueOf(rsMuon.getInt(1)) : "0");
+        SoSachQuaHan.setText(rsQuaHan.next() ? String.valueOf(rsQuaHan.getInt(1)) : "0");
+
+        connection.commit();
+    } catch (SQLException e) {
+        e.printStackTrace();
+        SoSach.setText("Lỗi");
+        SoSV.setText("Lỗi");
+        SoSachMuon.setText("Lỗi");
+        SoSachQuaHan.setText("Lỗi");
+    }
+}
+    private void closeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeMouseClicked
+        int confirm = JOptionPane.showConfirmDialog(this, 
+                "Bạn có chắc chắn muốn thoát ứng dụng?", 
+                "Xác nhận Thoát", 
+                JOptionPane.YES_NO_OPTION);
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            System.exit(0); 
+        }
+    }//GEN-LAST:event_closeMouseClicked
+
+    private void jPanel2MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel2MousePressed
+            mouseX = evt.getX();
+            mouseY = evt.getY();
+    }//GEN-LAST:event_jPanel2MousePressed
+
+    private void jPanel2MouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel2MouseDragged
+            int x = evt.getXOnScreen();
+    int y = evt.getYOnScreen();
+    this.setLocation(x - mouseX, y - mouseY);
+    }//GEN-LAST:event_jPanel2MouseDragged
+
+    private void homeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_homeMouseClicked
+        jTabbedPane1.setSelectedIndex(0); // Switch to first tab
+    }//GEN-LAST:event_homeMouseClicked
+
+    private void manageMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_manageMouseClicked
+        jTabbedPane1.setSelectedIndex(1); // Switch to first tab
+    }//GEN-LAST:event_manageMouseClicked
+
+    private void searchMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_searchMouseClicked
+        jTabbedPane1.setSelectedIndex(2); // Switch to first tab
+    }//GEN-LAST:event_searchMouseClicked
+
+    private void infoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_infoMouseClicked
+        jTabbedPane1.setSelectedIndex(3); // Switch to first tab
+    }//GEN-LAST:event_infoMouseClicked
+
+    private void homeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_homeMousePressed
+        home.setBackground(new Color(255, 255, 255));
+    }//GEN-LAST:event_homeMousePressed
+
+    private void manageMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_manageMousePressed
+        manage.setBackground(new Color(255, 255, 255));
+    }//GEN-LAST:event_manageMousePressed
+
+    private void searchMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_searchMousePressed
+        search.setBackground(new Color(255, 255, 255));
+    }//GEN-LAST:event_searchMousePressed
+
+    private void infoMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_infoMousePressed
+        info.setBackground(new Color(255, 255, 255));
+    }//GEN-LAST:event_infoMousePressed
+
+    private void homeMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_homeMouseReleased
+        home.setBackground(new Color(91,136,178));
+    }//GEN-LAST:event_homeMouseReleased
+
+    private void manageMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_manageMouseReleased
+        manage.setBackground(new Color(91,136,178));
+    }//GEN-LAST:event_manageMouseReleased
+
+    private void searchMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_searchMouseReleased
+        search.setBackground(new Color(91,136,178));
+    }//GEN-LAST:event_searchMouseReleased
+
+    private void infoMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_infoMouseReleased
+        info.setBackground(new Color(91,136,178));
+    }//GEN-LAST:event_infoMouseReleased
+
+    private void manageBookMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_manageBookMousePressed
+        manageBook.setBackground(new Color(51,51,51));
+    }//GEN-LAST:event_manageBookMousePressed
+
+    private void manageStudentsMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_manageStudentsMousePressed
+        manageStudents.setBackground(new Color(51,51,51));
+    }//GEN-LAST:event_manageStudentsMousePressed
+
+    private void manageLendMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_manageLendMousePressed
+        manageLend.setBackground(new Color(51,51,51));
+    }//GEN-LAST:event_manageLendMousePressed
+
+    private void manageUsersMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_manageUsersMousePressed
+        manageUsers.setBackground(new Color(51,51,51));
+    }//GEN-LAST:event_manageUsersMousePressed
+
+    private void manageBookMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_manageBookMouseReleased
+        manageBook.setBackground(new Color(255,255,255));
+    }//GEN-LAST:event_manageBookMouseReleased
+
+    private void manageStudentsMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_manageStudentsMouseReleased
+        manageStudents.setBackground(new Color(255,255,255));
+    }//GEN-LAST:event_manageStudentsMouseReleased
+
+    private void manageLendMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_manageLendMouseReleased
+        manageLend.setBackground(new Color(255,255,255));
+    }//GEN-LAST:event_manageLendMouseReleased
+
+    private void manageUsersMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_manageUsersMouseReleased
+        manageUsers.setBackground(new Color(255,255,255));
+    }//GEN-LAST:event_manageUsersMouseReleased
+
+    private void closeMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeMouseEntered
+        close.setBackground(new Color(255,0,0));
+    }//GEN-LAST:event_closeMouseEntered
+
+    private void closeMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeMouseExited
+        close.setBackground(new Color(0,51,102));
+    }//GEN-LAST:event_closeMouseExited
+
+    private void manageMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_manageMouseEntered
+        manage.setBackground(new Color(51,51,51));
+    }//GEN-LAST:event_manageMouseEntered
+
+    private void searchMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_searchMouseEntered
+        search.setBackground(new Color(51,51,51));
+    }//GEN-LAST:event_searchMouseEntered
+
+    private void homeMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_homeMouseEntered
+        home.setBackground(new Color(51,51,51));
+    }//GEN-LAST:event_homeMouseEntered
+
+    private void infoMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_infoMouseEntered
+        info.setBackground(new Color(51,51,51));
+    }//GEN-LAST:event_infoMouseEntered
+
+    private void homeMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_homeMouseExited
+       home.setBackground(new Color(91,136,178));
+    }//GEN-LAST:event_homeMouseExited
+
+    private void manageMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_manageMouseExited
+        manage.setBackground(new Color(91,136,178));
+    }//GEN-LAST:event_manageMouseExited
+
+    private void searchMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_searchMouseExited
+        search.setBackground(new Color(91,136,178));
+    }//GEN-LAST:event_searchMouseExited
+
+    private void infoMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_infoMouseExited
+        info.setBackground(new Color(91,136,178));
+    }//GEN-LAST:event_infoMouseExited
+
+    private void manageLendMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_manageLendMouseClicked
+        new MuonTra().setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_manageLendMouseClicked
+
+    private void manageBookMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_manageBookMouseClicked
+        new QuanLySach().setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_manageBookMouseClicked
+
+    private void manageStudentsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_manageStudentsMouseClicked
+        new QuanLySinhVien().setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_manageStudentsMouseClicked
+
+    private void manageUsersMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_manageUsersMouseClicked
+        new QuanLyUser().setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_manageUsersMouseClicked
+
+    private void signoutMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_signoutMouseClicked
+        new Login() .setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_signoutMouseClicked
+
+    private void signoutMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_signoutMouseEntered
+        signout.setBackground(new Color(51,51,51));
+    }//GEN-LAST:event_signoutMouseEntered
+
+    private void signoutMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_signoutMouseExited
+        signout.setBackground(new Color(0,51,102));
+    }//GEN-LAST:event_signoutMouseExited
+
+    private void signoutMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_signoutMousePressed
+        signout.setBackground(new Color(255,255,255));
+    }//GEN-LAST:event_signoutMousePressed
+
+    private void signoutMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_signoutMouseReleased
+        signout.setBackground(new Color(0,51,102));
+    }//GEN-LAST:event_signoutMouseReleased
+
+    private void tblThongKeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblThongKeMouseClicked
+        
+    }//GEN-LAST:event_tblThongKeMouseClicked
+
+    private void chkDangMuonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkDangMuonActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_chkDangMuonActionPerformed
+
+    private void btnThemMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnThemMouseEntered
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnThemMouseEntered
+
+    private void btnThemMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnThemMouseExited
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnThemMouseExited
+
+    private void btnThemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnThemActionPerformed
+        thongke();
+    }//GEN-LAST:event_btnThemActionPerformed
+
+    private void chkDaTraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkDaTraActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_chkDaTraActionPerformed
+
+    private void btnXuatMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnXuatMouseEntered
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnXuatMouseEntered
+
+    private void btnXuatMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnXuatMouseExited
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnXuatMouseExited
+
+    private void btnXuatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnXuatActionPerformed
+        xuat();
+    }//GEN-LAST:event_btnXuatActionPerformed
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(HomePage.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(HomePage.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(HomePage.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(HomePage.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new HomePage().setVisible(true);
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel SoSV;
+    private javax.swing.JLabel SoSach;
+    private javax.swing.JLabel SoSachMuon;
+    private javax.swing.JLabel SoSachQuaHan;
+    private javax.swing.JButton btnThem;
+    private javax.swing.JButton btnXuat;
+    private javax.swing.JCheckBox chkDaTra;
+    private javax.swing.JCheckBox chkDangMuon;
+    private javax.swing.JCheckBox chkQuaHan;
+    private javax.swing.JLabel close;
+    private javax.swing.JLabel displayUsername;
+    private javax.swing.JPanel home;
+    private javax.swing.JPanel info;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
+    private javax.swing.JLabel jLabel16;
+    private javax.swing.JLabel jLabel17;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel9;
+    private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel10;
+    private javax.swing.JPanel jPanel11;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel8;
+    private javax.swing.JPanel jPanel9;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JPanel manage;
+    private javax.swing.JLabel manageBook;
+    private javax.swing.JLabel manageLend;
+    private javax.swing.JLabel manageStudents;
+    private javax.swing.JLabel manageUsers;
+    private javax.swing.JPanel search;
+    private javax.swing.JLabel signout;
+    private javax.swing.JTable tblThongKe;
+    // End of variables declaration//GEN-END:variables
+}
